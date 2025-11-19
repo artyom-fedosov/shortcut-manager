@@ -1,12 +1,52 @@
-from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt
 import os
 import sys
 
-os.environ.pop('QT_STYLE_OVERRIDE', None)
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
+
+os.environ.pop("QT_STYLE_OVERRIDE", None)
+
+
+class CreateShortcutWindow(QtWidgets.QDialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.setWindowTitle("Create Shortcut")
+
+        self.name_input = QtWidgets.QLineEdit()
+        self.name_input.setPlaceholderText("Enter name")
+
+        self.combination_input = QtWidgets.QLineEdit()
+        self.combination_input.setPlaceholderText("Enter combination")
+
+        self.command_select = QtWidgets.QComboBox()
+        self.command_select.addItem("Run an executable")
+        self.command_select.addItem("Take screenshot")
+
+        self.description_input = QtWidgets.QLineEdit()
+        self.description_input.setPlaceholderText("Enter description")
+
+        self.create_button = QtWidgets.QPushButton("Create")
+        self.create_button.clicked.connect(self.create_shortcut)
+
+        # self.combination_input.selectionChanged.connect(lambda: print("aaa"))
+
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.addWidget(self.name_input)
+        main_layout.addWidget(self.combination_input)
+        main_layout.addWidget(self.command_select)
+        main_layout.addWidget(self.description_input)
+        main_layout.addWidget(self.create_button)
+
+    def create_shortcut(self):
+        name = self.name_input.text()
+        command = self.command_input.text()
+        # TODO: Implement shortcut creation logic
+        self.accept()
+
 
 class SettingsWindow(QtWidgets.QDialog):
-    def __init__(self,parent):
+    def __init__(self, parent):
         super().__init__(parent)
 
         self.setWindowTitle("Settings")
@@ -34,9 +74,6 @@ class SettingsWindow(QtWidgets.QDialog):
         main_layout.addWidget(self.export_settings_button)
 
 
-
-
-
 class MainWindow(QtWidgets.QListWidget):
     def __init__(self):
         super().__init__()
@@ -46,17 +83,18 @@ class MainWindow(QtWidgets.QListWidget):
         self.open_settings_button = QtWidgets.QPushButton("Settings")
         self.open_settings_button.clicked.connect(self.open_settings)
         self.create_new_shortcut = QtWidgets.QPushButton("Create shortcut")
-        self.create_new_shortcut.clicked.connect(self.test_add_shortcut)
+        self.create_new_shortcut.clicked.connect(self.open_create_shortcut_window)
 
-        #Table with shortcuts
+        # Table with shortcuts
         self.shortcut_table = QtWidgets.QTableWidget()
         self.shortcut_table.setColumnCount(5)
-        self.shortcut_table.setHorizontalHeaderLabels(["Name","Combination","Description","Edit","Delete"])
+        self.shortcut_table.setHorizontalHeaderLabels(
+            ["Name", "Combination", "Description", "Edit", "Delete"]
+        )
         self.shortcut_table.resizeColumnsToContents()
         self.shortcut_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
-
-        #Layout of an application
+        # Layout of an application
         main_layout = QtWidgets.QVBoxLayout(self)
 
         waybar_layout = QtWidgets.QHBoxLayout()
@@ -69,9 +107,13 @@ class MainWindow(QtWidgets.QListWidget):
     def test_add_shortcut(self):
         row_pos = self.shortcut_table.rowCount()
         self.shortcut_table.insertRow(row_pos)
-        self.shortcut_table.setItem(row_pos, 0, QtWidgets.QTableWidgetItem("Run GoogleChrome"))
+        self.shortcut_table.setItem(
+            row_pos, 0, QtWidgets.QTableWidgetItem("Run GoogleChrome")
+        )
         self.shortcut_table.setItem(row_pos, 1, QtWidgets.QTableWidgetItem("Ctrl+X"))
-        self.shortcut_table.setItem(row_pos, 2, QtWidgets.QTableWidgetItem("Runs a new GoogleChrome instance"))
+        self.shortcut_table.setItem(
+            row_pos, 2, QtWidgets.QTableWidgetItem("Runs a new GoogleChrome instance")
+        )
         self.shortcut_table.setItem(row_pos, 3, QtWidgets.QTableWidgetItem("Edit"))
         self.shortcut_table.setItem(row_pos, 4, QtWidgets.QTableWidgetItem("Delete"))
         self.shortcut_table.resizeColumnsToContents()
@@ -79,6 +121,10 @@ class MainWindow(QtWidgets.QListWidget):
     def open_settings(self):
         settings = SettingsWindow(self)
         settings.exec()
+
+    def open_create_shortcut_window(self):
+        create_shortcut_window = CreateShortcutWindow(self)
+        create_shortcut_window.exec()
 
 
 def run():
